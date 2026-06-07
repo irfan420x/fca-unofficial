@@ -1,7 +1,7 @@
 {
   "name": "irfan-fca",
-  "version": "1.0.0",
-  "description": "Advanced Facebook Chat API — 58+ Methods, MQTT Real-time, Middleware System",
+  "version": "2.0.0",
+  "description": "🚀 Advanced Facebook Chat API — 65+ Methods, MQTT Real-time, Middleware System, New GraphQL APIs",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
