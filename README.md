@@ -1,249 +1,277 @@
-This repo is a fork from main repo and will usually have new features bundled faster than main repo (and maybe bundle some bugs, too).
+# 🚀 Irfan-FCA — Advanced Facebook Chat API
 
-# Unofficial Facebook Chat API
+<a href="https://www.npmjs.com/package/irfan-fca"><img alt="npm version" src="https://img.shields.io/npm/v/irfan-fca.svg?style=flat-square"></a>
+<a href="https://www.npmjs.com/package/irfan-fca"><img src="https://img.shields.io/npm/dm/irfan-fca.svg?style=flat-square" alt="npm downloads"></a>
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-<a href="https://www.npmjs.com/package/dinovn-fca"><img alt="npm version" src="https://img.shields.io/npm/v/dinovn-fca.svg?style=flat-square"></a>
-<a href="https://www.npmjs.com/package/dinovn-fca"><img src="https://img.shields.io/npm/dm/dinovn-fca.svg?style=flat-square" alt="npm downloads"></a>
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+> 🔥 **Enhanced Facebook Chat API** — 58+ Methods, MQTT Real-time, Middleware System, Auto-save AppState
 
-Facebook now has an official API for chat bots [here](https://developers.facebook.com/docs/messenger-platform).
+## ✨ Features
 
-This API is the only way to automate chat functionalities on a user account. We do this by emulating the browser. This means doing the exact same GET/POST requests and tricking Facebook into thinking we're accessing the website normally. Because we're doing it this way, this API won't work with an auth token but requires the credentials of a Facebook account.
+- 🚀 **58+ API Methods** — Complete Facebook Messenger automation
+- 📡 **MQTT Real-time** — Instant message listening
+- 🔧 **Middleware System** — Custom event processing
+- 💾 **Auto-save AppState** — No repeated logins
+- 🔐 **2FA Support** — Two-factor authentication ready
+- 📱 **Multi-platform** — Works with pages and personal accounts
+- 🛡️ **Anti-ban Protection** — Built-in rate limiting
+- 🎨 **Rich Media** — Send files, stickers, emojis, URLs
 
-_Disclaimer_: We are not responsible if your account gets banned for spammy activities such as sending lots of messages to people you don't know, sending messages very quickly, sending spammy looking URLs, logging in and out very quickly... Be responsible Facebook citizens.
-
-See [below](#projects-using-this-api) for projects using this API.
-
-## Install
-
-If you just want to use dinovn-fca, you should use this command:
-
-```bash
-npm install dinovn-fca
-```
-
-It will download dinovn-fca from NPM repositories
-
-### Bleeding edge
-
-If you want to use bleeding edge (directly from github) to test new features or submit bug report, this is the command for you:
+## 📦 Installation
 
 ```bash
-npm install Dino-VN/fca-unofficial
+# Stable version
+npm install irfan-fca
+
+# Bleeding edge (latest features)
+npm install Irfan430/fca-unofficial
 ```
 
-## Testing your bots
+## 🚀 Quick Start
 
-If you want to test your bots without creating another account on Facebook, you can use [Facebook Whitehat Accounts](https://www.facebook.com/whitehat/accounts/).
-
-## Example Usage
-
+### Login with Email/Password
 ```javascript
-const login = require("dinovn-fca");
+const login = require('irfan-fca');
 
-// Create simple echo bot
-login({ email: "FB_EMAIL", password: "FB_PASSWORD" }, (err, api) => {
+login({ 
+    email: 'your@email.com', 
+    password: 'your-password' 
+}, (err, api) => {
     if (err) return console.error(err);
-
-    api.listenMqtt((err, message) => {
-        api.sendMessage(message.body, message.threadID);
+    
+    console.log('✅ Logged in!');
+    console.log('User ID:', api.getCurrentUserID());
+    
+    // Listen for messages
+    api.listenMqtt((err, event) => {
+        if (err) return console.error(err);
+        
+        if (event.type === 'message') {
+            api.sendMessage('Echo: ' + event.body, event.threadID);
+        }
     });
 });
 ```
 
-Result:
+### Login with AppState (Recommended)
+```javascript
+const fs = require('fs');
+const login = require('irfan-fca');
 
-<img width="517" alt="screen shot 2016-11-04 at 14 36 00" src="https://cloud.githubusercontent.com/assets/4534692/20023545/f8c24130-a29d-11e6-9ef7-47568bdbc1f2.png">
+// Load saved session
+const appState = JSON.parse(fs.readFileSync('appstate.json', 'utf8'));
 
-## Documentation
-
--  Docs in [here](https://github.com/Dino-VN/fca-unofficial/blob/HEAD/DOCS.md)
-
-## Main Functionality
-
-### Sending a message
-
-#### api.sendMessage(message, threadID[, callback][, messageid])
-
-Various types of message can be sent:
-
--   _Regular:_ set field `body` to the desired message as a string.
--   _Sticker:_ set a field `sticker` to the desired sticker ID.
--   _File or image:_ Set field `attachment` to a readable stream or an array of readable streams.
--   _URL:_ set a field `url` to the desired URL.
--   _Emoji:_ set field `emoji` to the desired emoji as a string and set field `emojiSize` with size of the emoji (`small`, `medium`, `large`)
-
-Note that a message can only be a regular message (which can be empty) and optionally one of the following: a sticker, an attachment or a url.
-
-**Tip**: to find your own ID, you can look inside the cookies. The `userID` is under the name `c_user`.
-
-**Example (Basic Message)**
-
-```js
-const login = require("dinovn-fca");
-
-login({ email: "FB_EMAIL", password: "FB_PASSWORD" }, (err, api) => {
+login({ appState }, (err, api) => {
     if (err) return console.error(err);
-
-    var yourID = "000000000000000";
-    var msg = "Hey!";
-    api.sendMessage(msg, yourID);
+    
+    console.log('✅ Logged in with AppState!');
+    
+    // Your bot code here...
 });
 ```
 
-**Example (File upload)**
+## 📚 Core Features
 
-```js
-const login = require("dinovn-fca");
+### 1️⃣ Send Messages
+```javascript
+// Text message
+api.sendMessage('Hello!', threadID);
 
-login({ email: "FB_EMAIL", password: "FB_PASSWORD" }, (err, api) => {
-    if (err) return console.error(err);
+// Reply to message
+api.sendMessage('Reply text', threadID, messageID);
 
-    // Note this example uploads an image called image.jpg
-    var yourID = "000000000000000";
-    var msg = {
-        body: "Hey!",
-        attachment: fs.createReadStream(__dirname + "/image.jpg"),
-    };
-    api.sendMessage(msg, yourID);
-});
+// Send file
+api.sendMessage({
+    body: 'Here is the file',
+    attachment: fs.createReadStream('./file.pdf')
+}, threadID);
+
+// Send image with caption
+api.sendMessage({
+    body: 'Check this out!',
+    attachment: fs.createReadStream('./image.jpg')
+}, threadID);
+
+// Send URL
+api.sendMessage({
+    body: 'Cool link',
+    url: 'https://example.com'
+}, threadID);
+
+// Send emoji
+api.sendMessage({
+    body: 'Great!',
+    emoji: '👍',
+    emojiSize: 'large'
+}, threadID);
 ```
 
----
-
-### Saving session.
-
-To avoid logging in every time you should save AppState (cookies etc.) to a file, then you can use it without having password in your scripts.
-
-**Example**
-
-```js
-const fs = require("fs");
-const login = require("dinovn-fca");
-
-var credentials = { email: "FB_EMAIL", password: "FB_PASSWORD" };
-
-login(credentials, (err, api) => {
+### 2️⃣ Listen for Events
+```javascript
+api.listenMqtt((err, event) => {
     if (err) return console.error(err);
-
-    fs.writeFileSync("appstate.json", JSON.stringify(api.getAppState()));
-});
-```
-
-Alternative: Use [c3c-fbstate](https://github.com/lequanglam/c3c-fbstate) to get fbstate.json (appstate.json)
-
----
-
-### Listening to a chat
-
-#### api.listen(callback)
-
-Listen watches for messages sent in a chat. By default this won't receive events (joining/leaving a chat, title change etc…) but it can be activated with `api.setOptions({listenEvents: true})`. This will by default ignore messages sent by the current account, you can enable listening to your own messages with `api.setOptions({selfListen: true})`.
-
-**Example**
-
-```js
-const fs = require("fs");
-const login = require("dinovn-fca");
-
-// Simple echo bot. It will repeat everything that you say.
-// Will stop when you say '/stop'
-login(
-    { appState: JSON.parse(fs.readFileSync("appstate.json", "utf8")) },
-    (err, api) => {
-        if (err) return console.error(err);
-
-        api.setOptions({ listenEvents: true });
-
-        var stopListening = api.listenMqtt((err, event) => {
-            if (err) return console.error(err);
-
-            api.markAsRead(event.threadID, (err) => {
-                if (err) console.error(err);
-            });
-
-            switch (event.type) {
-                case "message":
-                    if (event.body === "/stop") {
-                        api.sendMessage("Goodbye…", event.threadID);
-                        return stopListening();
-                    }
-                    api.sendMessage("TEST BOT: " + event.body, event.threadID);
-                    break;
-                case "event":
-                    console.log(event);
-                    break;
-            }
-        });
+    
+    switch (event.type) {
+        case 'message':
+            console.log('📩 Message:', event.body);
+            console.log('👤 From:', event.senderID);
+            console.log('💬 Thread:', event.threadID);
+            break;
+            
+        case 'event':
+            console.log('🎯 Event:', event);
+            break;
+            
+        case 'typ':
+            console.log('⌨️ Typing:', event.from);
+            break;
+            
+        case 'read_receipt':
+            console.log('👁️ Read by:', event.reader);
+            break;
     }
-);
+});
 ```
 
-## FAQS
+### 3️⃣ Middleware System
+```javascript
+// Add middleware
+api.useMiddleware('logger', (event, next) => {
+    console.log(`[${event.senderID}]: ${event.body}`);
+    next();
+});
 
-1. How do I run tests?
+// Rate limiting middleware
+api.useMiddleware('rateLimit', (event, next) => {
+    // Track and limit messages per user
+    next();
+});
 
-    > For tests, create a `test-config.json` file that resembles `example-config.json` and put it in the `test` directory. From the root >directory, run `npm test`.
+// Auto-reply middleware
+api.useMiddleware('autoReply', (event, next) => {
+    if (event.body === 'hello') {
+        api.sendMessage('Hi there!', event.threadID);
+    }
+    next();
+});
+```
 
-2. Why doesn't `sendMessage` always work when I'm logged in as a page?
+### 4️⃣ User & Thread Management
+```javascript
+// Get user info
+api.getUserInfo(userID, (err, info) => {
+    console.log(info[userID].name);
+    console.log(info[userID].profileUrl);
+});
 
-    > Pages can't start conversations with users directly; this is to prevent pages from spamming users.
+// Get thread list
+api.getThreadList(20, null, ['INBOX'], (err, threads) => {
+    threads.forEach(thread => {
+        console.log(thread.name, thread.threadID);
+    });
+});
 
-3. What do I do when `login` doesn't work?
+// Get thread history
+api.getThreadHistory(threadID, 50, null, (err, history) => {
+    history.forEach(msg => {
+        console.log(`[${msg.senderName}]: ${msg.body}`);
+    });
+});
 
-    > First check that you can login to Facebook using the website. If login approvals are enabled, you might be logging in incorrectly. For how to handle login approvals, read our docs on [`login`](DOCS.md#login).
+// Search threads
+api.searchForThread('Group Name', (err, threads) => {
+    console.log(threads);
+});
+```
 
-4. How can I avoid logging in every time? Can I log into a previous session?
+### 5️⃣ Group Management
+```javascript
+// Create group
+api.createNewGroup([userID1, userID2], 'Group Name', (err, info) => {
+    console.log('Group created:', info.threadID);
+});
 
-    > We support caching everything relevant for you to bypass login. `api.getAppState()` returns an object that you can save and pass into login as `{appState: mySavedAppState}` instead of the credentials object. If this fails, your session has expired.
+// Add user to group
+api.addUserToGroup(userID, threadID, (err) => {
+    console.log('User added!');
+});
 
-5. Do you support sending messages as a page?
+// Change group name
+api.setTitle('New Name', threadID, (err) => {
+    console.log('Title changed!');
+});
 
-    > Yes, set the pageID option on login (this doesn't work if you set it using api.setOptions, it affects the login process).
-    >
-    > ```js
-    > login(credentials, {pageID: "000000000000000"}, (err, api) => { … }
-    > ```
+// Change group color
+api.changeThreadColor('#ffc300', threadID, (err) => {
+    console.log('Color changed!');
+});
+```
 
-6. I'm getting some crazy weird syntax error like `SyntaxError: Unexpected token [`!!!
+### 6️⃣ Profile Management
+```javascript
+// Change profile picture
+const stream = fs.createReadStream('new-photo.jpg');
+api.changeAvatar(stream, (err, info) => {
+    console.log('Avatar changed!');
+    console.log('New URL:', info.profile.profilePhoto.url);
+});
 
-    > Please try to update your version of node.js before submitting an issue of this nature. We like to use new language features.
+// Get current user ID
+const myID = api.getCurrentUserID();
+console.log('My ID:', myID);
+```
 
-7. I don't want all of these logging messages!
-    > You can use `api.setOptions` to silence the logging. You get the `api` object from `login` (see example above). Do
-    >
-    > ```js
-    > api.setOptions({
-    >     logLevel: "silent",
-    > });
-    > ```
+## 🔧 Configuration
 
-<a name="projects-using-this-api"></a>
+```javascript
+api.setOptions({
+    listenEvents: true,      // Listen to group events
+    selfListen: false,       // Listen to own messages
+    autoMarkRead: false,     // Auto mark as read
+    online: true,            // Show online status
+    logLevel: 'silent'       // silent/error/warn/info/verbose
+});
+```
 
-## Projects using this API:
+## ⚠️ Important Notes
 
--   [c3c](https://github.com/lequanglam/c3c) - A bot that can be customizable using plugins. Support Facebook & Discord.
+1. **AppState > Password** — Use AppState to reduce checkpoint/ban risk
+2. **Rate Limiting** — Don't send messages too fast
+3. **MQTT Required** — Call `listenMqtt()` before `sendMessage()`
+4. **User-Agent** — Use Chrome 120+ for best compatibility
 
-## Projects using this API (original repository, facebook-chat-api):
+## 🐛 Troubleshooting
 
--   [Messer](https://github.com/mjkaufer/Messer) - Command-line messaging for Facebook Messenger
--   [messen](https://github.com/tomquirk/messen) - Rapidly build Facebook Messenger apps in Node.js
--   [Concierge](https://github.com/concierge/Concierge) - Concierge is a highly modular, easily extensible general purpose chat bot with a built in package manager
--   [Marc Zuckerbot](https://github.com/bsansouci/marc-zuckerbot) - Facebook chat bot
--   [Marc Thuckerbot](https://github.com/bsansouci/lisp-bot) - Programmable lisp bot
--   [MarkovsInequality](https://github.com/logicx24/MarkovsInequality) - Extensible chat bot adding useful functions to Facebook Messenger
--   [AllanBot](https://github.com/AllanWang/AllanBot-Public) - Extensive module that combines the facebook api with firebase to create numerous functions; no coding experience is required to implement this.
--   [Larry Pudding Dog Bot](https://github.com/Larry850806/facebook-chat-bot) - A facebook bot you can easily customize the response
--   [fbash](https://github.com/avikj/fbash) - Run commands on your computer's terminal over Facebook Messenger
--   [Klink](https://github.com/KeNt178/klink) - This Chrome extension will 1-click share the link of your active tab over Facebook Messenger
--   [Botyo](https://github.com/ivkos/botyo) - Modular bot designed for group chat rooms on Facebook
--   [matrix-puppet-facebook](https://github.com/matrix-hacks/matrix-puppet-facebook) - A facebook bridge for [matrix](https://matrix.org)
--   [facebot](https://github.com/Weetbix/facebot) - A facebook bridge for Slack.
--   [Botium](https://github.com/codeforequity-at/botium-core) - The Selenium for Chatbots
--   [Messenger-CLI](https://github.com/AstroCB/Messenger-CLI) - A command-line interface for sending and receiving messages through Facebook Messenger.
--   [AssumeZero-Bot](https://github.com/AstroCB/AssumeZero-Bot) – A highly customizable Facebook Messenger bot for group chats.
--   [Miscord](https://github.com/Bjornskjald/miscord) - An easy-to-use Facebook bridge for Discord.
--   [chat-bridge](https://github.com/rexx0520/chat-bridge) - A Messenger, Telegram and IRC chat bridge.
--   [messenger-auto-reply](https://gitlab.com/theSander/messenger-auto-reply) - An auto-reply service for Messenger.
--   [BotCore](https://github.com/AstroCB/BotCore) – A collection of tools for writing and managing Facebook Messenger bots.
--   [mnotify](https://github.com/AstroCB/mnotify) – A command-line utility for sending alerts and notifications through Facebook Messenger.
+### "MQTT client is not initialized"
+```javascript
+// Start MQTT listener FIRST
+api.listenMqtt((err, event) => { /* ... */ });
+
+// Wait 5 seconds before sending
+setTimeout(() => {
+    api.sendMessage('Hello!', threadID);
+}, 5000);
+```
+
+### "Login-approval" (2FA)
+```javascript
+login({ email, password }, (err, api) => {
+    if (err && err.error === 'login-approval') {
+        err.continue('123456'); // Your 2FA code
+    }
+});
+```
+
+## 📄 License
+
+MIT License — See [LICENSE-MIT](LICENSE-MIT)
+
+## 🙏 Credits
+
+- Original: [Schmavery/facebook-chat-api](https://github.com/Schmavery/facebook-chat-api)
+- Enhanced by: [DongDev](https://github.com/dongdev06)
+- Modified by: [Irfan Ahmmed](https://github.com/Irfan430)
+
+---
+
+**Made with ❤️ by Irfan Ahmmed**
