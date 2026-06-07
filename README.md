@@ -106,7 +106,92 @@ api.sendMessage({
 }, threadID);
 ```
 
-### 2️⃣ Listen for Events
+### 2️⃣ Profile Management
+```javascript
+// Set bio (NEW API)
+api.setBio('My new bio text', (err, bioData) => {
+    if (err) console.error(err);
+    console.log('Bio set:', bioData);
+});
+
+// Change bio with options
+api.setBio('Updated bio', { changeType: 'ADD' }, (err, bioData) => {
+    console.log('Bio updated!');
+});
+
+// Delete bio
+api.setBio('', { changeType: 'DELETE' }, (err) => {
+    console.log('Bio deleted!');
+});
+```
+
+### 3️⃣ Get Notifications (NEW API)
+```javascript
+api.getNotifications(20, (err, notifications) => {
+    if (err) console.error(err);
+    
+    notifications.forEach(notif => {
+        console.log(`${notif.text} - ${notif.timestamp}`);
+    });
+});
+```
+
+### 4️⃣ Get Groups List (NEW API)
+```javascript
+api.getGroupsList(50, (err, groups) => {
+    if (err) console.error(err);
+    
+    groups.forEach(group => {
+        console.log(`${group.name} (${group.memberCount} members)`);
+    });
+});
+```
+
+### 5️⃣ Get Pages List (NEW API)
+```javascript
+api.getPagesList(20, (err, pages) => {
+    if (err) console.error(err);
+    
+    pages.forEach(page => {
+        console.log(`${page.name} - ${page.fanCount} fans`);
+    });
+});
+```
+
+### 6️⃣ Get Stories (NEW API)
+```javascript
+api.getStories(30, (err, stories) => {
+    if (err) console.error(err);
+    
+    stories.forEach(story => {
+        console.log(`${story.owner.name}: ${story.url}`);
+    });
+});
+```
+
+### 7️⃣ Search Users (NEW API)
+```javascript
+api.searchUsers('John Doe', 10, (err, users) => {
+    if (err) console.error(err);
+    
+    users.forEach(user => {
+        console.log(`${user.name} - ${user.profileUrl}`);
+    });
+});
+```
+
+### 8️⃣ Get Marketplace (NEW API)
+```javascript
+api.getMarketplace(20, (err, listings) => {
+    if (err) console.error(err);
+    
+    listings.forEach(item => {
+        console.log(`${item.title} - $${item.price}`);
+    });
+});
+```
+
+### 9️⃣ Listen for Events
 ```javascript
 api.listenMqtt((err, event) => {
     if (err) return console.error(err);
